@@ -1,0 +1,2 @@
+# JavaTask
+Solved Tasks
