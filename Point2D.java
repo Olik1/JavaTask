@@ -17,6 +17,9 @@ public class Point2D {
         Point2D p2 = new Point2D(3,4);//полный конструктор
         System.out.println(p2);
         System.out.println("total points = " + Point2D.getCounter());
+        Point2D p3 = p1.addTo(p2);
+        System.out.println(p3);
+        System.out.println("total points = " + Point2D.getCounter());
 
     }
     public Point2D() {
@@ -46,6 +49,9 @@ public class Point2D {
 
     public static int getCounter() {
         return counter;
+    }
+    public Point2D addTo(Point2D rightValue){
+        return new Point2D(this.x + rightValue.x, this.y + rightValue.y);
     }
 
     @Override
