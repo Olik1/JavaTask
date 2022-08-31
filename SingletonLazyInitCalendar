@@ -1,0 +1,21 @@
+public class SingletonLazyInitCalendar {
+
+    //чтобы создать хотя бы один объект надо создать объект прямо в классе
+    private volatile static SingletonLazyInitCalendar instance;
+    /*могут быть проблемы в логике программы, т.к. Java оптимизирует код, =>
+    нам нужно специальное ключевое слово "volatile" запрещающее будущую оптимизацию
+    в геттере иначе логика программы развалится */
+
+    //закрытый конструктор, чтобы снаружи нельзя было создать объекты класса
+    private SingletonLazyInitCalendar() {}//конструктор без реализации
+
+    /*если мы впервые обращаемся к классу с помощью геттера - будет создан объект,
+    если объект уже создан нам вернут ссылку на ранее созданный объект */
+
+    public synchronized static SingletonLazyInitCalendar getInstance() {
+        //synchronized предусмотривает обращение нескольких потоков!, сильно замедляет работу впустую
+        if(instance == null)  instance = new SingletonLazyInitCalendar();
+        return instance;
+    }
+
+}
