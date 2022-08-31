@@ -1,0 +1,86 @@
+public abstract class ComLineParserBase {
+    protected String[] keys; //массив строк для хранения ключей
+    protected String[] delimeters; //массив строк для хранения разделителей
+
+    //- Скопируйте метод «OnUsage» из суперкласса и снимите комментарий. В суперклассе закомментированный текст  удалите.
+
+    protected abstract void OnUsage(String errorKey);
+
+    protected enum SwitchStatus { NOERROR, ERROR, SHOWUSAGE };//перечисление для завершения разбора командной строки с ограниченным значений-объектов
+
+    public static void main(String[] args) {
+
+        ComLineParserBase parser = new ComLineParserBase(new String[]{"?", "r", "w"}) {
+            @Override
+            protected void OnUsage(String errorKey) {
+
+            }
+        }; //создание экземпляра класса разбора строки
+        parser.parse(args);
+    }
+
+    public ComLineParserBase(String[] keys) { //конструктор массив ключей, зациклен на второй конструктор ниже
+        this(keys, new String[] { "/", "-" });
+    }
+    public ComLineParserBase(String[] keys, String[] delimeters) { // массив строк разделителей «/» и «-»
+        this.keys = keys;
+        this.delimeters = delimeters;
+    }
+    protected void onUsage(String errorKey){ //метод для вывода информации об ошибочном ключе и о вариантах командной строки
+       
+    }
+    protected SwitchStatus onSwitch(String key, String keyValue) { //метод, который будет вызываться для каждого найденного ключа в командной строке
+        // метод с именем «OnSwitch», возвращает «SwitchStatus» и получает на вход  две строки «key» и «keyValue»
+        //(имя найденного ключа в командной строке и его значение соответственно)
+        System.out.println(key); //??
+        System.out.println(keyValue);//??
+        //в теле метода распечатайте оба параметра и верните «SwitchStatus .NoError»
+        return SwitchStatus.NOERROR;
+    }
+    public Boolean parse(String[] args) { //метод который возвращает логический тип и принимает на вход массив параметров командной строки – «args»
+        SwitchStatus ss = SwitchStatus.NOERROR;//задаем переменную типа перечисление в статусе значения «NoError»
+        int argNum;//выносим счетчик за пределы цикла
+        // провера наличия правильного разделителя
+        for (argNum = 0; (ss == SwitchStatus.NOERROR) && (argNum < args.length); argNum++) { //запускаем цикл по элементам массива «args»
+            boolean isDelimeter = false;//в теле цикла для каждого параметра командной строки проверяем, что он начинается с одного из допустимых  разделителей
+            for (int n = 0; !isDelimeter && (n < delimeters.length); n++) { //провера наличия правильного разделителя
+                isDelimeter = args[argNum].regionMatches(0,delimeters[n], 0, 1);
+                //сравниваем строку args[argNum] с подстрокой delimeters[n]
+                //toffset: начальное смещение в  строке
+                //ooffset: начальное смещение в строковом аргументе.
+                //len: количество символов для сравнения.
+            }
+
+            if (isDelimeter) {//проверка на наличие правильного ключа
+                Boolean isKey = false; //логическую переменную «isKey» с начальным значением false
+                int i;
+                for (i = 0; !isKey && (i < keys.length); i++) { // проверяем циклом по ключам
+                    // результат сравнения двух ключей предварительно приведя их к верхнему регистру - используем метод regionMatches
+                    isKey = args[argNum].toUpperCase().regionMatches(1, keys[i].toUpperCase(),0,keys[i].length());
+                    //Первый ключ для сравнения берётся из массива «args», причём не с нулевой позиции, а второй и массива «keys»
+                    if (isKey) // если ключ верен, то завершаем цикл оператором «break»
+                        break;
+                }
+                if (!isKey) { // проверяем значение ключа «isKey» неверно - ошибка:
+                    ss = SwitchStatus.ERROR; //завершаем алгоритм со статусом «Error»
+                    break;
+                } else {
+                    ss = onSwitch(keys[i].toLowerCase(),
+                            args[argNum].substring(1 + keys[i].length()));
+                }
+            }
+            else { //если разделитель неверен, то завершаем алгоритм со статусом «Error»
+                ss = SwitchStatus.ERROR;
+                break;
+            }
+        }
+        // вызываем метод для вывода информации по статусу ключей
+        if (ss == SwitchStatus.SHOWUSAGE) //в случае ShowUsage null
+            onUsage(null);
+        if (ss == SwitchStatus.ERROR) //в случае наличия ошибок, выводим информацию о параметрах командной строки
+            onUsage((argNum == args.length) ? null : args[argNum]);
+
+        return ss == SwitchStatus.NOERROR; //завершаем алгоритм - нет ошибок
+    }
+}
+
