@@ -1,0 +1,61 @@
+public class SimpleParser extends ComLineParserBase{
+    /*     Обратите внимание на сделанные изменения в этом коде:
+            • перечисление и часть методов  объявлена с модификатором доступа «protected». Почему?
+            • метод «OnSwitch» просто возвращает код ошибки, т.к. его реализация будет в подклассе.
+    • метод «OnUsage» состоит из пустого блока – каждый подкласс будет определять свой формат командной строки.*/
+    //в классе две закрытых строковых переменных с именами «inFile» и «outFile» для хранения  имени входного и выходного файла.
+    private String inFile;
+    private String outFile;
+
+    public static void main(String[] args) {
+        SimpleParser parser = new SimpleParser();
+        parser.parse(args);
+        System.out.println(parser.getInFile()+ " "+ parser.outFile);
+
+    }
+//Создайте пару открытых методов для получение этих значений извне.
+    public String getInFile() {
+        return inFile;
+    }
+    public String getOutFile() {
+        return outFile;
+    }
+    //- Скопируйте метод «OnUsage» из суперкласса и снимите комментарий. В суперклассе закомментированный текст  удалите.
+    @Override
+    protected void OnUsage(String errorKey){ //метод для вывода информации об ошибочном ключе и о вариантах командной строки
+        //выводит подсказку с форматом командной строки в случае ошибки
+        if (errorKey != null)
+            System.out.println("Command-line switch error:" + errorKey); //печатаем информацию о работе командной строки
+            System.out.println("формат ком.строки: имяПрограммы [-r<input-fileName>] [-w<output-fileName>]");
+            System.out.println("   -?  показать Help файл");
+            System.out.println("   -r  задать имя входного файла");
+            System.out.println("   -w  выполнить вывод в указанный файл");
+    }
+    public SimpleParser() {
+        super(new String[]{"?","r", "w"});
+    }
+    @Override
+    protected SwitchStatus onSwitch(String key, String keyValue) { //метод, который будет вызываться для каждого найденного ключа в командной строке
+        SwitchStatus status = SwitchStatus.NOERROR;
+    //напишите оператор «switch» по параметру «key»
+        switch (key){
+    // для случая «?» установите «status» в значение «SwitchStatus.ShowUsage»
+            case "?" : status = SwitchStatus.SHOWUSAGE; break;
+            case "r": ////для случая «r» проверьте, что «keyValue» содержит значение,
+                if(keyValue.length()<1){ //при отсутствии значения выведите  сообщение:
+                   status = SwitchStatus.ERROR;  //    об ошибке и присвойте «status» значение «SwitchStatus.Error»
+                    System.out.println("Нет имени файла");
+                }
+                else //а если да то положите его в «inFile»,
+                outFile = keyValue; break;
+            case "w": //для случая «w» напишите аналогичный код, но для выходного файла
+                if(keyValue.length()<1){
+                    status = SwitchStatus.ERROR;
+                    System.out.println(("Нет имени выходного файла"));
+                }
+                else inFile = keyValue; break;
+            default: status = SwitchStatus.NOERROR; //ри необходимости на пишите раздел «default»
+        }
+        return status;//верните «status»
+    }
+}
