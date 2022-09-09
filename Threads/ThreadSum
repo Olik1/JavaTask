@@ -1,0 +1,30 @@
+public class ThreadSum implements Runnable{
+    private Thread self;
+    //переменная для каждого из потоков -позиия
+    private int position;
+
+    public ThreadSum(int position) {
+        this.position = position;
+        self = new Thread(this);
+    }
+
+    public void start(){
+        self.start();
+    }
+
+    public void join(){
+        try {
+            self.join();
+        } catch (InterruptedException ex) {
+
+        }
+    }
+
+    @Override
+    public void run() {
+        for (int i = position; i < GlobalData.ARRAY_SIZE; i+=GlobalData.THREADS_COUNTS) {
+            GlobalData.results[position] += GlobalData.array[i];
+        }
+    }
+
+}
