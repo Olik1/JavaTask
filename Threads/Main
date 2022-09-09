@@ -1,0 +1,43 @@
+import java.util.Random;
+
+public class Main {
+    public static void main(String[] args) {
+
+        GlobalData.array = new int[GlobalData.ARRAY_SIZE];//инициализируем массив
+        Random random = new Random();
+        for (int i = 0; i < GlobalData.ARRAY_SIZE ; i++) {
+            GlobalData.array[i] = random.nextInt(10);
+        }
+        GlobalData.results = new long[GlobalData.THREADS_COUNTS];//инициализируем массив нулями, для аккуратности
+        for (int i = 0; i < GlobalData.THREADS_COUNTS; i++) {
+            GlobalData.results[i] = 0;
+        }
+        // 1 thread
+        long sum1 = 0;
+        long t1 = System.currentTimeMillis();
+        for (int i = 0; i < GlobalData.ARRAY_SIZE; i++) {
+            sum1 += GlobalData.array[i];
+        }
+        long t2 = System.currentTimeMillis();
+        System.out.println("sum1 = "+ sum1 +" time = "+ (t2-t1));
+
+        //parallel
+        ThreadSum[] threadSums = new ThreadSum[GlobalData.THREADS_COUNTS];
+        for (int i = 0; i < GlobalData.THREADS_COUNTS ; i++) {
+            threadSums[i] = new ThreadSum(i);//в круглых скобках передаем параметр в конструкторе, для каждогоо потока своя позиция
+        }
+        long sum2 = 0;
+        long t3 = System.currentTimeMillis();
+        for (int i = 0; i < GlobalData.THREADS_COUNTS; i++) {
+            threadSums[i].start();//запускаем потоки
+        }
+        for (int i = 0; i < GlobalData.THREADS_COUNTS; i++) {
+            threadSums[i].join();//ожидаем завершения результатов, сумма по окончании будет хранится в массиве резулььтата
+        }
+        for (int i = 0; i < GlobalData.THREADS_COUNTS; i++) {
+            sum2 += GlobalData.results[i];//суммируем и получаем итоговую сумму элементов
+        }
+        long t4 = System.currentTimeMillis();
+        System.out.println("sum2 = "+ sum2 + " time 2 = "+ (t4-t3));
+    }
+}
